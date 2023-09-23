@@ -3,15 +3,19 @@
 // this code is public domain, enjoy!
 
 #include <AFMotor.h>
+#include <Arduino_JSON.h>
 
 AF_DCMotor motor[4](1);
 #define DEFAULT_SPEED 120
+JSONVar data;
 int global_speed;
 
 void setup() {
   Serial.begin(9600);           // set up Serial library at 9600 bps
   Serial.println("Started!");
-
+  
+  data["direction"] = (char)'p';
+  data["speed"] = (int)DEFAULT_SPEED;
   global_speed = DEFAULT_SPEED;
 
   for(int i = 0 ; i < 4 ; i++){
@@ -24,7 +28,10 @@ void setup() {
 }
 
 void loop() {
-  char c = Serial.read();
+  data = Serial.read();
+  int global_speed = data["speed"];
+  char c =  data["direction"]; 
+
   switch(c){
     case('w'):
       forward(global_speed);
