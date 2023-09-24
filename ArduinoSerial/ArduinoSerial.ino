@@ -3,19 +3,19 @@
 // this code is public domain, enjoy!
 
 #include <AFMotor.h>
-#include <Arduino_JSON.h>
+#include <ArduinoJson.h>
 
 AF_DCMotor motor[4](1);
 #define DEFAULT_SPEED 120
-JSONVar data;
+
+String data;
 int global_speed;
 
+
 void setup() {
-  Serial.begin(9600);           // set up Serial library at 9600 bps
+  Serial.begin(9600);           
   Serial.println("Started!");
   
-  data["direction"] = (char)'p';
-  data["speed"] = (int)DEFAULT_SPEED;
   global_speed = DEFAULT_SPEED;
 
   for(int i = 0 ; i < 4 ; i++){
@@ -28,36 +28,36 @@ void setup() {
 }
 
 void loop() {
-  data = Serial.read();
-  int global_speed = data["speed"];
-  char c =  data["direction"]; 
+  if(Serial.available() > 0){
 
-  switch(c){
-    case('w'):
+    static StaticJsonDocument<50> json_doc;
+    const auto serial_data = deserializeJson(json_doc,Serial);
+
+    int global_speed = json_doc["speed"];
+    String c =  json_doc["direction"]; 
+
+    Serial.println(global_speed);
+    Serial.println(c);
+
+    if( c.equals("w") ){
       forward(global_speed);
-      break;
-
-    case('s'):
+    }else
+    if( c.equals("s") ){
       backward(global_speed);
-      break;
-
-    case('a'):
+    }else
+    if( c.equals("a") ){
       turn_left(global_speed);
-      break;
-
-    case('d'):
+    }else
+    if( c.equals("d") ){
       turn_right(global_speed);
-      break;
-
-    case('p'):
+    }else
+    if( c.equals("p") ){
       stop();
-      break;
-
-    case('t'):
+    }else
+    if( c.equals("t") ){
       test_motors();
-      break;
+    }
   }
-  delay(100);
 }
 void set_speed_to_motors(int speed){
    global_speed = speed;
